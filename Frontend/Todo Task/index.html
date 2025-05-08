@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Todo App</h1>
+
+        <!-- Filters Section -->
+        <div class="form-row mt-4">
+            <div class="col">
+                <label for="filterPriority">Priority</label>
+                <select class="form-control" id="filterPriority">
+                    <option value="">All</option>
+                    <option value="0">Low</option>
+                    <option value="1">Medium</option>
+                    <option value="2">High</option>
+                </select>
+            </div>
+            <div class="col">
+                <label for="filterEndDate">Due Date</label>
+                <input type="date" class="form-control" id="filterEndDate">
+            </div>
+            <div class="col">
+                <label for="filterStatus">Status</label>
+                <select class="form-control" id="filterStatus">
+                    <option value="">All</option>
+                    <option value="0">Pending</option>
+                    <option value="1">In Progress</option>
+                    <option value="2">Completed</option>
+                </select>
+            </div>
+            <div class="col mt-4">
+                <button class="btn btn-secondary mt-2" onclick="applyFilters()">Apply Filters</button>
+            </div>
+        </div>
+
+        <!-- Create/Edit Todo Form -->
+        <form id="todoForm" class="mt-4">
+            <input type="hidden" id="todoId">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" placeholder="Enter title" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" placeholder="Enter description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select class="form-control" id="status">
+                    <option value="0">Pending</option>
+                    <option value="1">In Progress</option>
+                    <option value="2">Completed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select class="form-control" id="priority">
+                    <option value="0">Low</option>
+                    <option value="1">Medium</option>
+                    <option value="2">High</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dueDate">Due Date</label>
+                <input type="date" class="form-control" id="dueDate">
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitButton">Add Todo</button>
+            <button type="button" class="btn btn-secondary" id="cancelEditButton" style="display: none;" onclick="cancelEdit()">Cancel</button>
+        </form>
+
+        <!-- Todo List -->
+        <div class="mt-5" id="todoList">
+            <h2>Todo List</h2>
+            <ul id="todos" class="list-group">
+                <!-- Todo items will be inserted here dynamically -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS & Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const apiBaseUrl = 'https://localhost:7273/api/Todo';
+
+        // Function to fetch todos with filters from the backend
+        async function fetchTodos(filters = { priority: null, endDate: null, status: null }) {
+            try {
+                // Construct query string for filters
+                const queryParams = new URLSearchParams();
+                if (filters.priority !== null && filters.priority !== '' && filters.priority !== undefined) {
+                    queryParams.append('priority', filters.priority);
+                }
+                if (filters.endDate !== null && filters.endDate !== '' && filters.endDate !== undefined) {
+                    // Convert YYYY-MM-DD to date-time format (e.g., 2025-05-10T00:00:00Z)
+                    const endDate = new Date(filters.endDate).toISOString();
+                    queryParams.append('endDate', endDate);
+                }
+
+                const url = `${apiBaseUrl}/GetFilteredTodos?${queryParams.toString()}`;
+                console.log('Fetching todos from:', url);
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
+                }
+                const todos = await response.json();
+                console.log('Fetched todos:', todos);
+                renderTodos(todos, filters);
+            } catch (error) {
+                console.error('Error fetching todos:', error);
+                alert('Failed to load todos. Check console for details.');
+            }
+        }
+
+        // Function to apply filters
+        function applyFilters() {
+            const filterPriority = document.getElementById('filterPriority').value;
+            const filterEndDate = document.getElementById('filterEndDate').value;
+            const filterStatus = document.getElementById('filterStatus').value;
+
+            const filters = {
+                priority: filterPriority || null,
+                endDate: filterEndDate || null,
+                status: filterStatus || null
+            };
+
+            console.log('Applying filters:', filters);
+            fetchTodos(filters);
+        }
+
+        // Function to render todos in the list
+        function renderTodos(todos, filters) {
+            const todoList = document.getElementById('todos');
+            todoList.innerHTML = ''; // Clear the current list
+
+            // Apply client-side status filter since backend doesn't support it
+            if (filters.status !== null && filters.status !== '' && filters.status !== undefined) {
+                todos = todos.filter(todo => todo.status === parseInt(filters.status));
+            }
+
+            if (!todos || todos.length === 0) {
+                todoList.innerHTML = '<li class="list-group-item">No todos available.</li>';
+                return;
+            }
+
+            todos.forEach(todo => {
+                const todoItem = document.createElement('li');
+                todoItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+
+                // Map priority and status to readable values
+                const priorityText = ['Low', 'Medium', 'High'][todo.priority] || 'Unknown';
+                const statusText = ['Pending', 'In Progress', 'Completed'][todo.status] || 'Unknown';
+
+                todoItem.innerHTML = `
+                    <div>
+                        <strong>${todo.title || 'Untitled'}</strong><br>
+                        <small>${todo.description || 'No description'}</small><br>
+                        <small>Status: ${statusText}</small><br>
+                        <small>Priority: ${priorityText}</small><br>
+                        <small>Due: ${todo.dueDate ? new Date(todo.dueDate).toLocaleDateString() : 'N/A'}</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-warning btn-sm mr-2" onclick='editTodo("${todo.id}")'>Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick='deleteTodo("${todo.id}")'>Delete</button>
+                    </div>
+                `;
+                todoList.appendChild(todoItem);
+            });
+        }
+
+        // Function to handle form submission (create or update)
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const todoId = document.getElementById('todoId').value;
+            const method = todoId ? 'PUT' : 'POST';
+            const url = todoId ? `${apiBaseUrl}/${todoId}` : `${apiBaseUrl}/CreateTodo`;
+
+            const todoData = {
+                Title: document.getElementById('title').value,
+                Description: document.getElementById('description').value,
+                Status: parseInt(document.getElementById('status').value),
+                Priority: parseInt(document.getElementById('priority').value),
+                DueDate: document.getElementById('dueDate').value || null
+            };
+
+            console.log('Submitting todo:', todoData, 'Method:', method);
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(todoData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Error ${todoId ? 'updating' : 'creating'} todo: ${errorData.title || errorData.message}`);
+                }
+
+                fetchTodos(); // Re-fetch the todos after adding/updating
+                document.getElementById('todoForm').reset();
+                document.getElementById('todoId').value = '';
+                document.getElementById('submitButton').textContent = 'Add Todo';
+                document.getElementById('cancelEditButton').style.display = 'none';
+            } catch (error) {
+                console.error(`Error ${todoId ? 'updating' : 'creating'} todo:`, error);
+                alert(`Failed to ${todoId ? 'update' : 'create'} todo. Check console for details.`);
+            }
+        }
+
+        // Function to edit a todo
+        async function editTodo(id) {
+            console.log('Editing todo with id:', id);
+            try {
+                const response = await fetch(`${apiBaseUrl}/GetFilteredTodos`);
+                if (!response.ok) throw new Error('Failed to fetch todos');
+                const todos = await response.json();
+                const todo = todos.find(t => t.id === id);
+
+                if (todo) {
+                    document.getElementById('todoId').value = todo.id;
+                    document.getElementById('title').value = todo.title || '';
+                    document.getElementById('description').value = todo.description || '';
+                    document.getElementById('status').value = todo.status;
+                    document.getElementById('priority').value = todo.priority;
+                    document.getElementById('dueDate').value = todo.dueDate ? new Date(todo.dueDate).toISOString().split('T')[0] : '';
+                    document.getElementById('submitButton').textContent = 'Update Todo';
+                    document.getElementById('cancelEditButton').style.display = 'inline-block';
+                } else {
+                    console.error('Todo not found for id:', id);
+                    alert('Todo not found.');
+                }
+            } catch (error) {
+                console.error('Error fetching todo for edit:', error);
+                alert('Failed to load todo for editing. Check console for details.');
+            }
+        }
+
+        // Function to cancel edit mode
+        function cancelEdit() {
+            document.getElementById('todoForm').reset();
+            document.getElementById('todoId').value = '';
+            document.getElementById('submitButton').textContent = 'Add Todo';
+            document.getElementById('cancelEditButton').style.display = 'none';
+        }
+
+        // Function to delete a todo with confirmation
+        async function deleteTodo(id) {
+            // Show confirmation dialog
+            const confirmed = confirm('Are you sure you want to delete this todo?');
+            if (!confirmed) {
+                return; // Exit if the user cancels
+            }
+
+            console.log('Deleting todo with id:', id);
+            try {
+                const response = await fetch(`${apiBaseUrl}/${id}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
+                }
+                fetchTodos();
+            } catch (error) {
+                console.error('Error deleting todo:', error);
+                alert('Failed to delete todo. Check console for details.');
+            }
+        }
+
+        // Add event listener for the form submission
+        document.getElementById('todoForm').addEventListener('submit', handleFormSubmit);
+
+        // Fetch the initial list of todos when the page loads
+        window.onload = fetchTodos;
+    </script>
+</body>
+</html>
