@@ -1,0 +1,12 @@
+﻿global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using Todo_App_Api.DataAcess.Repository.IRepository;
+global using Microsoft.EntityFrameworkCore;
+global using Todo_App_Api.DataAcess.DataAcess;
+global using Todo_App_Api.DataAcess.Repository.IRepository;
+global using Todo_App_Api.DataAcess.Repository;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.EntityFrameworkCore;
+global using Todo_App_Api.Models.Models;
+global using System.ComponentModel.DataAnnotations;
+global using Todo_App_Api.Dtos.Request;
