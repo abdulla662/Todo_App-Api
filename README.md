@@ -1,75 +1,113 @@
-Task Description
-This project is a simple Todo Management application that implements basic CRUD operations, status management, and other features like filtering and validation. The backend is built with .NET 9, and the frontend uses Bootstrap for a simple user interface.
 
-Core Features:
-CRUD operations: Create, Read, Update, Delete todos.
+# ✅ Todo_App-Api
 
-Filtering by status: View todos based on their status (Pending, InProgress, Completed).
+مشروع إدارة مهام (To-Do) بسيط باستخدام ASP.NET Core Web API، يتيح للمستخدمين إنشاء، تعديل، حذف، وعرض المهام مع إمكانية تصنيفها حسب الحالة.
 
-Mark todo as complete: Ability to mark a todo as completed.
+---
 
-Basic validation: Ensures title is required and due dates are valid.
+## 🛠️ التقنيات المستخدمة
 
-Data Model:
-Todo
+- ASP.NET Core 9
+- Entity Framework Core
+- SQL Server
+- Bootstrap (لواجهة المستخدم البسيطة)
+- C#
+- RESTful API
 
-Id (Guid) - Unique identifier for each todo.
+---
 
-Title (required, max 100 chars) - The title of the todo.
+## 🎯 المميزات
 
-Description (optional) - A description of the todo.
+- **CRUD كامل**: إنشاء، قراءة، تحديث، وحذف المهام.
+- **تصنيف المهام حسب الحالة**: عرض المهام حسب حالتها (Pending, InProgress, Completed).
+- **تحديد مواعيد نهائية**: إمكانية تحديد تاريخ انتهاء لكل مهمة.
+- **التحقق من صحة البيانات**: التحقق من وجود عنوان للمهمة وصحة تاريخ الانتهاء.
+- **واجهة مستخدم بسيطة**: باستخدام Bootstrap لعرض المهام وإدارتها بسهولة.
 
-Status (Pending/InProgress/Completed) - The current status of the todo.
+---
 
-Priority (Low/Medium/High) - Priority level of the todo.
+## 📁 هيكل المشروع
 
-DueDate (optional) - The due date for the todo.
+```
+Todo_App-Api/
+├── Todo_App-Api/               # المشروع الرئيسي (Web API)
+│   ├── Controllers/            # Controllers الخاصة بالمهام
+│   ├── Models/                 # نماذج البيانات (Todo, Status, etc.)
+│   ├── DataAccess/             # إعدادات قاعدة البيانات وContext
+│   └── Utility/                # الأدوات والمساعدات
+├── Frontend/                   # الواجهة الأمامية باستخدام Bootstrap
+└── Todo_App-Api.sln            # ملف الحل (Solution)
+```
 
-CreatedDate - The date when the todo was created.
+---
 
-LastModifiedDate - The date when the todo was last modified.
+## 🚀 خطوات التشغيل
 
-Technical Requirements:
-Backend:
-ASP.NET Core 9
+1. **استنساخ المشروع**:
 
-Entity Framework Core
+   ```bash
+   git clone https://github.com/abdulla662/Todo_App-Api.git
+   ```
 
-Error handling: Proper error handling for all operations.
+2. **فتح المشروع**:
 
-CRUD operations for todos.
+   افتح الملف `Todo_App-Api.sln` باستخدام Visual Studio.
 
-Frontend:
-Bootstrap: Simple Bootstrap interface for managing todos.
+3. **إعداد قاعدة البيانات**:
 
-Todo list with status filter: Filter todos by their status.
+   تأكد من تحديث سلسلة الاتصال (Connection String) في ملف `appsettings.json` لتتناسب مع إعدادات SQL Server الخاصة بك.
 
-Create/Edit form: Form for creating and editing todos.
+4. **تشغيل الترحيلات (Migrations)**:
 
-Delete confirmation: Confirmation before deleting a todo.
+   افتح Package Manager Console ونفذ الأوامر التالية:
 
-Bonus Features:
-DDD principles: Using Domain-Driven Design (DDD).
+   ```bash
+   Add-Migration InitialCreate
+   Update-Database
+   ```
 
-Domain events: Example event like TodoCompletedEvent.
+5. **تشغيل المشروع**:
 
-Additional filters: Adding priority and date range filters.
+   اضغط على زر التشغيل في Visual Studio أو نفذ الأمر التالي:
 
-Sorting options: Sort todos by different fields.
+   ```bash
+   dotnet run
+   ```
 
-API Documentation: Basic API documentation using Swagger or similar.
+6. **الوصول إلى الواجهة**:
 
-Setup Instructions:
-1-git clone <repository-url>//Clone the repository to your local machine
-2-cd TodoManagementAPI//Navigate to the project folder
-3-dotnet restore //Restore NuGet packages:
-4-dotnet ef database update //Apply database migrations
-5-dotnet run//Run the application
+   افتح المتصفح وادخل إلى:
 
-Front end 
-1-cd front end // to navigate front end file 
-2-Update the API endpoint to point to your local backend server ex:(const apiUrl = 'https://localhost:5001/api/todos'; // Update this URL if necessary
-)
+   ```
+   http://localhost:5000
+   ```
 
+   أو حسب البورت المحدد في إعدادات المشروع.
 
+---
 
+## 📷 صور توضيحية
+
+*ملاحظة: يمكنك إضافة صور للواجهة هنا لعرض كيفية استخدام التطبيق.*
+
+---
+
+## 📌 ملاحظات
+
+- **تحسينات مستقبلية**:
+  - إضافة نظام تسجيل دخول وتسجيل مستخدمين.
+  - دعم تعدد المستخدمين وإمكانية مشاركة المهام.
+  - تحسين واجهة المستخدم باستخدام تقنيات حديثة مثل React أو Angular.
+
+---
+
+## 🧑‍💻 المؤلف
+
+- **الاسم**: عبد الله
+- **GitHub**: [abdulla662](https://github.com/abdulla662)
+
+---
+
+## 📄 الرخصة
+
+هذا المشروع مرخص تحت رخصة MIT. لمزيد من المعلومات، راجع ملف [LICENSE](LICENSE).
